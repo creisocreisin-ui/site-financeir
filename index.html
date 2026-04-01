@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinVision — Gestão Financeira</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111828;
+    --card: #161f35;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --text: #e8eaf0;
+    --muted: #7a8299;
+    --accent: #2dd4bf;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 6%;
+    background: rgba(10,15,30,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    animation: fadeDown .7s ease both;
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; font-weight: 900;
+    color: var(--gold);
+    letter-spacing: .04em;
+  }
+  .logo span { color: var(--accent); }
+  nav ul { display: flex; gap: 36px; list-style: none; }
+  nav ul a { color: var(--muted); text-decoration: none; font-size: .9rem; letter-spacing: .04em; transition: color .25s; }
+  nav ul a:hover { color: var(--gold-light); }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: #0a0f1e; font-weight: 500; font-size: .85rem;
+    padding: 10px 24px; border-radius: 50px; border: none;
+    cursor: pointer; transition: transform .2s, box-shadow .2s;
+    letter-spacing: .06em;
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,.35); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 6% 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(45,212,191,.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 70% at 10% 80%, rgba(201,168,76,.09) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: .4;
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 620px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(201,168,76,.1); border: 1px solid rgba(201,168,76,.3);
+    color: var(--gold-light); font-size: .78rem; letter-spacing: .1em;
+    padding: 6px 16px; border-radius: 50px;
+    margin-bottom: 28px;
+    animation: fadeUp .8s .2s ease both;
+  }
+  .badge::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--gold); }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.6rem, 5vw, 4.2rem);
+    line-height: 1.1;
+    font-weight: 900;
+    animation: fadeUp .8s .35s ease both;
+  }
+  h1 em { font-style: normal; color: var(--gold); }
+  .hero-sub {
+    margin-top: 20px; font-size: 1.05rem; color: var(--muted);
+    line-height: 1.7; max-width: 480px;
+    animation: fadeUp .8s .5s ease both;
+  }
+  .hero-btns {
+    display: flex; gap: 16px; margin-top: 40px; flex-wrap: wrap;
+    animation: fadeUp .8s .65s ease both;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: #0a0f1e; font-weight: 500; padding: 14px 32px;
+    border-radius: 50px; border: none; cursor: pointer;
+    font-size: .95rem; letter-spacing: .05em;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(201,168,76,.4); }
+  .btn-outline {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border); padding: 14px 32px;
+    border-radius: 50px; cursor: pointer;
+    font-size: .95rem; letter-spacing: .05em;
+    transition: border-color .2s, color .2s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* STATS STRIP */
+  .stats {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+  }
+  .stat-item {
+    flex: 1; min-width: 160px; text-align: center;
+    padding: 36px 20px;
+    border-right: 1px solid var(--border);
+    animation: fadeUp .6s ease both;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem; font-weight: 900;
+    color: var(--gold);
+  }
+  .stat-label { font-size: .8rem; color: var(--muted); margin-top: 4px; letter-spacing: .06em; }
+
+  /* SECTION */
+  section { padding: 100px 6%; }
+  .section-tag {
+    font-size: .75rem; letter-spacing: .14em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700; line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  h2 em { font-style: normal; color: var(--gold); }
+  .section-sub { color: var(--muted); font-size: 1rem; line-height: 1.7; max-width: 520px; }
+
+  /* SERVICES */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px; margin-top: 60px;
+  }
+  .service-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 32px;
+    position: relative; overflow: hidden;
+    transition: transform .3s, border-color .3s, box-shadow .3s;
+  }
+  .service-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(201,168,76,.3);
+    box-shadow: 0 20px 50px rgba(0,0,0,.4);
+  }
+  .service-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--accent));
+    opacity: 0; transition: opacity .3s;
+  }
+  .service-card:hover::before { opacity: 1; }
+  .icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; margin-bottom: 22px;
+    background: rgba(201,168,76,.12);
+  }
+  .service-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem; font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .service-card p { color: var(--muted); font-size: .9rem; line-height: 1.65; }
+
+  /* HOW IT WORKS */
+  .how { background: var(--surface); }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 32px; margin-top: 60px;
+    position: relative;
+  }
+  .step { text-align: center; padding: 16px; }
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem; font-weight: 900;
+    color: rgba(201,168,76,.15); line-height: 1;
+    margin-bottom: 16px;
+  }
+  .step h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem; font-weight: 700;
+    margin-bottom: 10px; color: var(--gold-light);
+  }
+  .step p { color: var(--muted); font-size: .88rem; line-height: 1.65; }
+
+  /* PLANS */
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px; margin-top: 60px;
+  }
+  .plan-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 42px 36px;
+    transition: transform .3s, border-color .3s;
+    position: relative; overflow: hidden;
+  }
+  .plan-card.featured {
+    border-color: var(--gold);
+    background: linear-gradient(145deg, #1a2340, #161f35);
+  }
+  .plan-card.featured::after {
+    content: 'MAIS POPULAR';
+    position: absolute; top: 20px; right: -28px;
+    background: var(--gold);
+    color: #0a0f1e; font-size: .65rem; font-weight: 700;
+    letter-spacing: .1em; padding: 5px 40px;
+    transform: rotate(45deg);
+  }
+  .plan-card:hover { transform: translateY(-6px); }
+  .plan-name {
+    font-size: .78rem; letter-spacing: .12em; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+  .plan-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem; font-weight: 900; color: var(--gold);
+    line-height: 1;
+  }
+  .plan-price sup { font-size: 1.2rem; vertical-align: top; margin-top: .5rem; }
+  .plan-price span { font-size: 1rem; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+  .plan-desc { color: var(--muted); font-size: .88rem; margin: 14px 0 28px; }
+  .plan-features { list-style: none; margin-bottom: 36px; }
+  .plan-features li {
+    padding: 9px 0; font-size: .88rem; color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .plan-features li::before { content: '✓'; color: var(--accent); font-weight: 700; }
+  .btn-plan {
+    width: 100%; padding: 14px; border-radius: 50px; border: none;
+    font-size: .9rem; letter-spacing: .06em; cursor: pointer;
+    font-weight: 500; transition: transform .2s, box-shadow .2s;
+  }
+  .btn-plan.gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: #0a0f1e;
+  }
+  .btn-plan.gold:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(201,168,76,.4); }
+  .btn-plan.outline {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-plan.outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* TESTIMONIALS */
+  .testimonials { background: var(--surface); }
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px; margin-top: 60px;
+  }
+  .testi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    transition: transform .3s;
+  }
+  .testi-card:hover { transform: translateY(-4px); }
+  .stars { color: var(--gold); font-size: 1rem; margin-bottom: 16px; }
+  .testi-text { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: 24px; font-style: italic; }
+  .testi-author { display: flex; align-items: center; gap: 14px; }
+  .avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .95rem; color: #0a0f1e;
+  }
+  .author-info .name { font-size: .9rem; font-weight: 500; }
+  .author-info .role { font-size: .78rem; color: var(--muted); }
+
+  /* CTA */
+  .cta-section {
+    text-align: center; padding: 100px 6%;
+    background:
+      radial-gradient(ellipse 70% 80% at 50% 50%, rgba(201,168,76,.06) 0%, transparent 70%),
+      var(--bg);
+    position: relative; overflow: hidden;
+  }
+  .cta-section h2 { font-size: clamp(2rem, 4vw, 3.2rem); }
+  .cta-section p { color: var(--muted); margin: 16px auto 40px; max-width: 480px; font-size: 1rem; line-height: 1.7; }
+
+  /* FOOTER */
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 60px 6% 36px;
+  }
+  .footer-top {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px; margin-bottom: 50px;
+  }
+  .footer-brand .logo { font-size: 1.3rem; display: block; margin-bottom: 14px; }
+  .footer-brand p { color: var(--muted); font-size: .87rem; line-height: 1.65; max-width: 240px; }
+  .footer-col h4 { font-size: .82rem; letter-spacing: .1em; color: var(--gold-light); margin-bottom: 18px; text-transform: uppercase; }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 10px; }
+  .footer-col ul a { color: var(--muted); text-decoration: none; font-size: .87rem; transition: color .2s; }
+  .footer-col ul a:hover { color: var(--text); }
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .footer-bottom p { color: var(--muted); font-size: .82rem; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    nav ul { display: none; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    h1 { font-size: 2.2rem; }
+  }
+  @media (max-width: 480px) {
+    .footer-top { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Fin<span>Vision</span></div>
+  <ul>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#como">Como Funciona</a></li>
+    <li><a href="#planos">Planos</a></li>
+    <li><a href="#depoimentos">Depoimentos</a></li>
+  </ul>
+  <button class="nav-cta">Começar Agora</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="badge">GESTÃO FINANCEIRA INTELIGENTE</div>
+    <h1>Tome o controle da sua <em>saúde financeira</em></h1>
+    <p class="hero-sub">Soluções completas de gestão financeira para empresas e pessoas físicas que querem crescer com segurança, planejamento e resultados reais.</p>
+    <div class="hero-btns">
+      <button class="btn-primary">Solicitar Consultoria</button>
+      <button class="btn-outline">Conhecer Planos</button>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item">
+    <div class="stat-num">+2.400</div>
+    <div class="stat-label">Clientes Ativos</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">R$480M</div>
+    <div class="stat-label">Gerenciados</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">98%</div>
+    <div class="stat-label">Satisfação</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">12 Anos</div>
+    <div class="stat-label">de Mercado</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="servicos">
+  <div class="section-tag">— Nossos Serviços</div>
+  <h2>Tudo que sua empresa <em>precisa</em></h2>
+  <p class="section-sub">Do planejamento ao controle, oferecemos soluções sob medida para transformar sua relação com o dinheiro.</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="icon">📊</div>
+      <h3>Consultoria Financeira</h3>
+      <p>Análise completa do seu cenário financeiro com estratégias personalizadas para maximizar resultados e reduzir riscos.</p>
+    </div>
+    <div class="service-card">
+      <div class="icon">💹</div>
+      <h3>Planejamento de Investimentos</h3>
+      <p>Monte uma carteira inteligente alinhada aos seus objetivos de curto, médio e longo prazo com segurança.</p>
+    </div>
+    <div class="service-card">
+      <div class="icon">🧾</div>
+      <h3>Controle de Fluxo de Caixa</h3>
+      <p>Monitore entradas e saídas em tempo real, antecipe cenários e tome decisões com base em dados concretos.</p>
+    </div>
+    <div class="service-card">
+      <div class="icon">📈</div>
+      <h3>BPO Financeiro</h3>
+      <p>Terceirize a gestão financeira da sua empresa e foque no que realmente importa: crescer o seu negócio.</p>
+    </div>
+    <div class="service-card">
+      <div class="icon">🏦</div>
+      <h3>Crédito e Financiamento</h3>
+      <p>Encontramos as melhores linhas de crédito do mercado e preparamos sua empresa para obter as melhores condições.</p>
+    </div>
+    <div class="service-card">
+      <div class="icon">🛡️</div>
+      <h3>Gestão de Riscos</h3>
+      <p>Identificamos vulnerabilidades financeiras e implementamos estratégias para proteger o patrimônio da sua empresa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="como">
+  <div class="section-tag">— Como Funciona</div>
+  <h2>Da análise ao <em>resultado</em></h2>
+  <p class="section-sub">Um processo estruturado em 4 etapas para garantir que você alcance seus objetivos financeiros.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Diagnóstico</h3>
+      <p>Mapeamos toda a situação financeira atual, identificando pontos críticos e oportunidades de melhoria.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>Estratégia</h3>
+      <p>Desenvolvemos um plano personalizado com metas claras, prazos e indicadores de desempenho.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Implementação</h3>
+      <p>Colocamos o plano em prática com acompanhamento próximo e ajustes dinâmicos conforme necessário.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h3>Resultados</h3>
+      <p>Monitoramos os resultados com relatórios claros e transparentes para garantir sua evolução contínua.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section id="planos">
+  <div class="section-tag">— Planos e Preços</div>
+  <h2>Escolha o plano <em>ideal</em> para você</h2>
+  <p class="section-sub">Opções flexíveis para autônomos, pequenas e médias empresas com necessidades diferentes.</p>
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-name">Essencial</div>
+      <div class="plan-price"><sup>R$</sup>497<span>/mês</span></div>
+      <p class="plan-desc">Ideal para autônomos e MEIs que precisam de organização financeira básica.</p>
+      <ul class="plan-features">
+        <li>Controle de fluxo de caixa</li>
+        <li>Relatórios mensais</li>
+        <li>Suporte por e-mail</li>
+        <li>Dashboard financeiro</li>
+        <li>1 usuário</li>
+      </ul>
+      <button class="btn-plan outline">Começar Agora</button>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-name">Profissional</div>
+      <div class="plan-price"><sup>R$</sup>1.290<span>/mês</span></div>
+      <p class="plan-desc">Para pequenas empresas que buscam crescimento com controle total.</p>
+      <ul class="plan-features">
+        <li>Tudo do Essencial</li>
+        <li>BPO Financeiro completo</li>
+        <li>Consultoria mensal</li>
+        <li>Planejamento orçamentário</li>
+        <li>Até 5 usuários</li>
+        <li>Suporte prioritário</li>
+      </ul>
+      <button class="btn-plan gold">Escolher Plano</button>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Empresarial</div>
+      <div class="plan-price"><sup>R$</sup>2.890<span>/mês</span></div>
+      <p class="plan-desc">Solução completa para médias empresas com demandas financeiras complexas.</p>
+      <ul class="plan-features">
+        <li>Tudo do Profissional</li>
+        <li>Gestão de riscos</li>
+        <li>Estratégia de investimentos</li>
+        <li>Usuários ilimitados</li>
+        <li>Gerente dedicado</li>
+        <li>Reuniões semanais</li>
+      </ul>
+      <button class="btn-plan outline">Falar com Especialista</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="depoimentos">
+  <div class="section-tag">— Depoimentos</div>
+  <h2>O que nossos clientes <em>dizem</em></h2>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"A FinVision transformou completamente a gestão financeira da nossa empresa. Em 6 meses já víamos resultados expressivos no fluxo de caixa."</p>
+      <div class="testi-author">
+        <div class="avatar">M</div>
+        <div class="author-info">
+          <div class="name">Mariana Costa</div>
+          <div class="role">CEO, TechStart Brasil</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"Finalmente entendi para onde ia o dinheiro da empresa. O dashboard em tempo real mudou a forma como tomo decisões todos os dias."</p>
+      <div class="testi-author">
+        <div class="avatar">R</div>
+        <div class="author-info">
+          <div class="name">Ricardo Almeida</div>
+          <div class="role">Sócio, Almeida & Filhos</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"O suporte é impecável e os consultores realmente entendem do negócio. Consegui um financiamento com as melhores condições do mercado."</p>
+      <div class="testi-author">
+        <div class="avatar">A</div>
+        <div class="author-info">
+          <div class="name">Ana Beatriz Lima</div>
+          <div class="role">Diretora, Grupo Lima</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-tag">— Pronto para começar?</div>
+  <h2>Transforme suas finanças <em>hoje mesmo</em></h2>
+  <p>Agende uma consulta gratuita com nossos especialistas e descubra como podemos ajudar o seu negócio a crescer com segurança.</p>
+  <button class="btn-primary" style="font-size:1rem;padding:16px 40px;">Agendar Consultoria Gratuita</button>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <span class="logo">Fin<span style="color:var(--accent)">Vision</span></span>
+      <p>Gestão financeira inteligente para empresas e pessoas que querem crescer com segurança.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Serviços</h4>
+      <ul>
+        <li><a href="#">Consultoria</a></li>
+        <li><a href="#">BPO Financeiro</a></li>
+        <li><a href="#">Investimentos</a></li>
+        <li><a href="#">Gestão de Riscos</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Empresa</h4>
+      <ul>
+        <li><a href="#">Sobre Nós</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Cases</a></li>
+        <li><a href="#">Carreiras</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contato</h4>
+      <ul>
+        <li><a href="#">(11) 9999-0000</a></li>
+        <li><a href="#">contato@finvision.com.br</a></li>
+        <li><a href="#">São Paulo, SP</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 FinVision. Todos os direitos reservados.</p>
+    <p>Política de Privacidade · Termos de Uso</p>
+  </div>
+</footer>
+
+</body>
+</html>
